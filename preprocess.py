@@ -9,7 +9,7 @@ from nltk.stem.snowball import SnowballStemmer
 #     stop_words = set(stopwords.words("english"))
 # except LookupError:
 #     nltk.download("stopwords",config.NLTK_DIR)
-nltk.download("stopwords",config.NLTK_DIR)
+nltk.download("stopwords")
 stop_words = set(stopwords.words("english"))
 
 def remove_mathjax(text):
