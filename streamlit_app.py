@@ -4,15 +4,18 @@ import pickle
 # pip install Jinja2 --upgrade
 import config
 from preprocess import preprocess_text
+
 #####
 import nltk
-from nltk.corpus import stopwords
-from nltk.tokenize import wordpunct_tokenize
-from nltk.stem.snowball import SnowballStemmer
-try:
-    stop_words = set(stopwords.words("english"))
-except LookupError:
-    nltk.download("stopwords",config.NLTK_DIR)
+nltk.download("stopwords")
+# import nltk
+# from nltk.corpus import stopwords
+# from nltk.tokenize import wordpunct_tokenize
+# from nltk.stem.snowball import SnowballStemmer
+# try:
+#     stop_words = set(stopwords.words("english"))
+# except LookupError:
+#     nltk.download("stopwords",config.NLTK_DIR)
 #####
 
 st.title("codeforces_tag_predict")
