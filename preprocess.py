@@ -5,10 +5,12 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import wordpunct_tokenize
 from nltk.stem.snowball import SnowballStemmer
-try:
-    stop_words = set(stopwords.words("english"))
-except LookupError:
-    nltk.download("stopwords",config.NLTK_DIR)
+# try:
+#     stop_words = set(stopwords.words("english"))
+# except LookupError:
+#     nltk.download("stopwords",config.NLTK_DIR)
+nltk.download("stopwords",config.NLTK_DIR)
+stop_words = set(stopwords.words("english"))
 
 def remove_mathjax(text):
     mathjax = "(\$\$\$(.*?)\$\$\$)"
