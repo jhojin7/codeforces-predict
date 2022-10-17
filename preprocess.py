@@ -1,52 +1,53 @@
-import pandas as pd
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MultiLabelBinarizer
-from sklearn.pipeline import Pipeline
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.feature_extraction.text import CountVectorizer
-
-
 import config
-train = pd.read_pickle("./data/train.pkl")
-test = pd.read_pickle("./data/test.pkl")
-X_train, y_train = train["problem_statement"], train["tags"]
-X_test, y_test = test["problem_statement"], test["tags"]
 
-print(X_train.tail())
-print(X_train.shape, y_train.shape)
-print(X_test.shape, y_test.shape)
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import wordpunct_tokenize
+from nltk.stem.snowball import SnowballStemmer
+try:
+    stop_words = set(stopwords.words("english"))
+except LookupError:
+    nltk.download("stopwords",config.NLTK_DIR)
 
-# multilabel binarizer
-mlb = MultiLabelBinarizer()
-y_train_onehot = pd.DataFrame(mlb.fit_transform(y_train),
-    columns=mlb.classes_, index=y_train.index)
-y_test_onehot = pd.DataFrame(mlb.fit_transform(y_test),
-    columns=mlb.classes_, index=y_test.index)
+def remove_mathjax(text):
+    mathjax = "(\$\$\$(.*?)\$\$\$)"
+    shortword = r"\W*\b\w{1,2}\b"
+    return "".join(re.sub(mathjax," ",text))
 
-print(mlb.classes_)
-print(y_train_onehot.shape)
-print(X_train.shape, y_train_onehot["implementation"].shape)
+def remove_stopwords(text):
+    return " ".join(wordpunct_tokenize(text))
 
-from sklearn.feature_extraction.text import CountVectorizer
-count_vect = CountVectorizer()
-X_train_counts = count_vect.fit_transform(X_train)
-print(X_train_counts.shape)
-X_test_counts = count_vect.transform(X_test)
-print(X_test_counts.shape)
 
-from sklearn.naive_bayes import MultinomialNB
-clf = MultinomialNB()
+def remove_shorts_stopwords(text):
+    result = []
+    # for word in tokenizer.tokenize(regex_pipeline):
+    for word in text.split():
+        if len(word)>=3 and word not in stop_words:
+            result.append(word)
+    return " ".join(result)
 
-tags = mlb.classes_
-for tag in tags:
-    y_train_imp = y_train_onehot[tag]
-    clf.fit(X_train_counts, y_train_imp)
-    y_pred = clf.predict(X_test_counts)
-    print(y_pred, len(y_pred))
-    # for i,n in enumerate(y_pred):
-    #     if n==1: print(tags[i], end=' ')
-    # print()
+def stemming(text):
+    stemmer = SnowballStemmer("english")
+    words = set()
+    for word in text.split():
+        stem = stemmer.stem(word)
+        words.add(stem)
+    return " ".join(words)
 
-# print(f"{tag} accuracy:",
-#     accuracy_score(y_test_onehot[tag],y_pred))
+# text preprocessing as function
+def preprocess_text(text):
+    """ preprocessing text 
+    return processed text
+    - text = text to process
+    """
+    text = remove_mathjax(text)
+    text = remove_stopwords(text)
+    text = remove_shorts_stopwords(text)
+    text = stemming(text)
+    return text
+
+def preprocess_df(df):
+    df["problem_statement"] = \
+        df["problem_statement"].apply(lambda x:preprocess_text(str(x)))
+    return df
