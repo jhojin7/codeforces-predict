@@ -1,15 +1,18 @@
-import config
-
+import pickle
+import pandas as pd
+import numpy as np
 import re
+
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import wordpunct_tokenize
 from nltk.stem.snowball import SnowballStemmer
+from sklearn.preprocessing import MultiLabelBinarizer
 # try:
 #     stop_words = set(stopwords.words("english"))
 # except LookupError:
 #     nltk.download("stopwords",config.NLTK_DIR)
-nltk.download("stopwords")
+# nltk.download("stopwords")
 stop_words = set(stopwords.words("english"))
 
 def remove_mathjax(text):
@@ -50,6 +53,14 @@ def preprocess_text(text):
     return text
 
 def preprocess_df(df):
+    """ returns df """
     df["problem_statement"] = \
         df["problem_statement"].apply(lambda x:preprocess_text(str(x)))
     return df
+
+def binarize_y(y):
+    """ Binarize y """
+    mlb = MultiLabelBinarizer()
+    y_binarized = pd.DataFrame(mlb.fit_transform(y),
+        columns=mlb.classes_, index=y.index)
+    return y_binarized
