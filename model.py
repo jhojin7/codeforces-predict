@@ -13,6 +13,8 @@ from sklearn.metrics import accuracy_score
 import xgboost as xgb
 from sklearn.linear_model import LogisticRegression
 
+from sklearn.model_selection import GridSearchCV
+
 SEED = config.SEED
 train = pd.read_pickle(config.TRAIN)
 train = preprocess.preprocess_df(train)
@@ -31,9 +33,9 @@ tfidf_nb = Pipeline([
 ])
 
 # tfidf + xgboost
-tfidf_xgb = Pipeline([
+xgb_clf = Pipeline([
     ("tfidf",TfidfVectorizer(max_features=config.MAX_FEATURES)),
-    ("xgboost",xgb.XGBClassifier(random_state=SEED)),
+    ("xgb",xgb.XGBClassifier(random_state=SEED)),
 ])
 
 # logistic
@@ -42,12 +44,26 @@ logistic = Pipeline([
     ("logistic",OneVsRestClassifier(LogisticRegression(random_state=SEED))),
 ])
 
-for pipe in [
-    tfidf_nb,
-    tfidf_xgb,
-    logistic,
-    ]:
-    pipe.fit(X_train, y_train)
-    y_pred = pipe.predict(X_test)
-    # print(y_pred, accuracy_score(y_test, y_pred))
-    print(accuracy_score(y_test,y_pred))
+def run_all():
+    for name,clf in [
+        ("naivebayes",tfidf_nb),
+        ("xgboost",xgb_clf),
+        ("logistic",logistic),
+        ]:
+        clf.fit(X_train, y_train)
+        y_pred = clf.predict(X_test)
+        # print(y_pred, accuracy_score(y_test, y_pred))
+        print(name,accuracy_score(y_test,y_pred))
+# run_all()
+
+xgb_param_grid = {
+    "xgb__booster":["gblinear","gbtree"],
+    "xgb__max_depth":[0,1,5,10,15],
+    "xgb__predictor":["cpu_predictor"],
+}
+
+xgb_clf_best = GridSearchCV(xgb_clf,xgb_param_grid,n_jobs=-1,scoring="accuracy",verbose=1)
+xgb_clf_best.fit(X_train,y_train)
+print(xgb_clf_best.best_estimator_)
+print(xgb_clf_best.best_params_)
+print(xgb_clf_best.best_score_)
