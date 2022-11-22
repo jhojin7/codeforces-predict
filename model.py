@@ -2,8 +2,8 @@ import pickle
 import pandas as pd
 import numpy as np
 
-import config
 import preprocess
+import config
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import Pipeline
@@ -50,6 +50,12 @@ log_clf = Pipeline([
     ("logistic",OneVsRestClassifier(LogisticRegression(random_state=SEED))),
 ])
 
+from sklearn.cluster import KMeans
+kmeans_clf = Pipeline([
+    ("tfidf",TfidfVectorizer(max_features=config.MAX_FEATURES)),
+    ("kmeans",KMeans(n_clusters=100))
+])
+
 # xgb_param_grid = {
 #     "xgb__booster":["gblinear","gbtree"],
 #     "xgb__max_depth":[0,1,5,10,15],
@@ -62,5 +68,3 @@ log_clf = Pipeline([
 # print(xgb_clf_best.best_estimator_)
 # print(xgb_clf_best.best_params_)
 # print(xgb_clf_best.best_score_)
-
-ALL_MODELS = [lin_clf, log_clf, nb_clf, xgb_clf]
