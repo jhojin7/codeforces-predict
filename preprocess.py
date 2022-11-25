@@ -15,16 +15,16 @@ from sklearn.preprocessing import MultiLabelBinarizer
 # nltk.download("stopwords")
 stop_words = set(stopwords.words("english"))
 
-def remove_mathjax(text):
-    mathjax = "(\$\$\$(.*?)\$\$\$)"
-    shortword = r"\W*\b\w{1,2}\b"
-    return "".join(re.sub(mathjax," ",text))
 
 def remove_stopwords(text):
     return " ".join(wordpunct_tokenize(text))
 
 
 def remove_shorts_stopwords(text):
+    """ remove short words
+    input: string
+    output: string
+    """
     result = []
     # for word in tokenizer.tokenize(regex_pipeline):
     for word in text.split():
@@ -33,6 +33,10 @@ def remove_shorts_stopwords(text):
     return " ".join(result)
 
 def stemming(text):
+    """ use stemmer 
+    input: string
+    output: string
+    """
     stemmer = SnowballStemmer("english")
     words = set()
     for word in text.split():
@@ -43,20 +47,32 @@ def stemming(text):
 # text preprocessing as function
 def preprocess_text(text):
     """ preprocessing text 
-    return processed text
-    - text = text to process
+    input: string
+    output: string
     """
-    text = remove_mathjax(text)
+    # all lowercase
+    text = text.lower()
+    # regex $$$mathjax$$$
+    text = re.sub(
+        r"(\$\$\$(.*?)\$\$\$)","",text)
+    # regex !@#$...
+    text = re.sub(
+        r'[@%\\*=()/~#&\+á?\xc3\xa1\-\|\.\:\;\!\-\,\_\~\$\'\"\n\]\[\>]', '',text)
+    # 
+    text = remove_stopwords(text)
+    text = stemming(text)
     text = remove_stopwords(text)
     text = remove_shorts_stopwords(text)
-    text = stemming(text)
     return text
 
-def preprocess_df(df):
-    """ returns df """
-    df["problem_statement"] = \
-        df["problem_statement"].apply(lambda x:preprocess_text(str(x)))
-    return df
+def clean_tags_column(tags):
+    _tags = str(tags).split(',')
+    ret = []
+    for tag in _tags:
+        # remove rating tag  
+        if '*' not in tag:
+            ret.append(tag)
+    return ret
 
 def binarize_y(y):
     """ Binarize y """
