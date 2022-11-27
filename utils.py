@@ -24,3 +24,16 @@ def clf_fit_predict(clf, plot=True):
     if plot:
         df.plot(kind="bar",figsize=(10,4),title=clf)
     return df
+
+def confusion_matrix_reg(y_test, y_pred, threshold=0.7):
+    """ confusion matrix for regressors
+    input: y_test, y_pred, threshold=0.7
+    output: tp,tn,fp,fn
+    """
+    tp,tn,fp,fn = 0,0,0,0
+    for x,y in zip(y_test,y_pred):
+        if x==1 and y>=threshold: tp+=1
+        elif x==0 and y<threshold: tn+=1
+        elif x==0 and y>=threshold: fp+=1
+        elif x==1 and y<threshold: fn+=1
+    return (tp,tn,fp,fn)
