@@ -8,3 +8,5 @@ data/pipeline.pkl
 _notes.md
 requirements.txt
 crawlers/*
+data/*
+wordcloud.ipynb
