@@ -1,7 +1,7 @@
 # random_state seed
 SEED = 1234567891 # 42
 # CountVectorizer max_features
-MAX_FEATURES = 300
+MAX_FEATURES = 100
 # pickle paths
 NLTK_DIR = "./data/nltk/"
 DATA_CSV = "./_data/data.csv"
